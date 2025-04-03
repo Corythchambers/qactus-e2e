@@ -46,9 +46,9 @@ test.describe('Portfolio Blog Tests', () => {
       await page.screenshot({
         path: './screenshots/blog-navigation-from-home.png',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log(
-        'Could not navigate to Blog section from navigation links, may be a single page app or blog link not found'
+        `Could not navigate to Blog section from navigation links: ${error.message}`
       );
     }
   });
