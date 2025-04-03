@@ -1,0 +1,88 @@
+name: E2E Tests
+
+on:
+  # Allows triggering from other repositories
+  repository_dispatch:
+    types: [trigger-e2e-tests]
+
+  # Allows manual triggering with parameters
+  workflow_dispatch:
+    inputs:
+      trigger_repo:
+        description: 'Repository that triggered this workflow'
+        required: true
+        default: 'unknown'
+      trigger_sha:
+        description: 'Commit SHA that triggered this workflow'
+        required: true
+        default: 'main'
+      environment:
+        description: 'Environment to run tests against'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: npm run e2e
+        env:
+          # Get environment from dispatch event or workflow_dispatch input
+          TARGET_ENV: ${{ github.event.client_payload.environment || github.event.inputs.environment }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Comment on triggering repository
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get repo and SHA from event payload or inputs
+            const triggerRepo = '${{ github.event.client_payload.trigger_repo || github.event.inputs.trigger_repo }}';
+            const triggerSha = '${{ github.event.client_payload.trigger_sha || github.event.inputs.trigger_sha }}';
+            const environment = '${{ github.event.client_payload.environment || github.event.inputs.environment }}';
+
+            // Skip if we don't have a repo to comment on
+            if (triggerRepo === 'unknown') return;
+
+            const [owner, repo] = triggerRepo.split('/');
+            const testResult = '${{ job.status }}' === 'success' ? '✅ Tests passed' : '❌ Tests failed';
+            const reportUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            github.rest.repos.createCommitComment({
+              owner,
+              repo,
+              commit_sha: triggerSha,
+              body: `## E2E Test Results: ${testResult}
+              
+              Tests were run against the **${environment}** environment.
+              
+              [View full test report](${reportUrl})`
+            });
