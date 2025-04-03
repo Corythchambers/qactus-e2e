@@ -1,0 +1,61 @@
+{
+  "root": true,
+  "extends": ["eslint:recommended"],
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+    "no-debugger": "error",
+    "prefer-const": "error",
+    "no-var": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:playwright/recommended"
+      ],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint", "playwright"],
+      "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "project": "./tests/e2e/tsconfig.json"
+      },
+      "rules": {
+        "playwright/expect-expect": "warn",
+        "playwright/no-conditional-expect": "warn",
+        "playwright/no-focused-test": "error",
+        "playwright/no-skipped-test": "warn",
+        "playwright/valid-expect": "error",
+        "playwright/prefer-web-first-assertions": "warn",
+
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          { "argsIgnorePattern": "^_" }
+        ],
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "@typescript-eslint/no-empty-function": "warn",
+        "@typescript-eslint/no-non-null-assertion": "warn",
+
+        "quotes": ["warn", "single", { "avoidEscape": true }],
+        "semi": ["warn", "always"]
+      }
+    },
+    {
+      "files": ["**/*.{spec,test}.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+/coverage
+/playwright-report/
+/test-results/
+/tests-examples/
+/screenshots/
+
+# Build output
+/dist/
+/build/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Playwright
+.playwright/
+
+# Test results
+test-results/
+
+# Screenshots
+screenshots/
+
+# Playwright report
+playwright-report/
